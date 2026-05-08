@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { PrForm } from "./pr-form"
+import { SignOutButton } from "./components/sign-out-button"
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -11,6 +12,7 @@ export default async function DashboardPage() {
       <div className="max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold">Enter a GitHub PR Link</h1>
         <PrForm />
+        <SignOutButton />
       </div>
     </div>
   )

@@ -3,50 +3,119 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Octokit } from "@octokit/rest";
 
+import { Container } from "@/components/ui/container";
+import { PrTopbar } from "./components/pr-topbar";
+import { PrHeader } from "./components/pr-header";
+import { PrTabs } from "./components/pr-tabs";
+import { FileTree, slug } from "./components/file-tree";
+import { FileDiffCard } from "./components/file-diff";
+import { PrSidebar } from "./components/pr-sidebar";
+import type { PrStatus } from "./components/status-pill";
 
-export default async function Page ({ params }: { params: { owner: string, repo: string, pr: string } }) {
-    const { owner, repo, pr } = await params;
-    const session = await auth();
-    
-    const account = await prisma.account.findFirst({
-        where: {
-            userId: session?.user?.id,
-            provider: "github",
-        },
-    })
-    if (!account) redirect("/");
-    if (!session) redirect("/");
+type Params = { owner: string; repo: string; pr: string };
 
-    const octokit = new Octokit({
-        auth: account?.access_token,
-    })
+export default async function Page({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
+  const { owner, repo, pr } = await params;
 
-    const files = await octokit.paginate(octokit.rest.pulls.listFiles, {
-        owner,
-        repo,
-        pull_number: parseInt(pr),
-        per_page: 100,
-    })
+  const session = await auth();
+  if (!session) redirect("/");
 
-    return (
-        <div className="p-6 space-y-6">
-            {files.map((file) => (
-                <div key={file.filename} className="border border-gray-700 rounded-md overflow-hidden">
-                    <div className="px-4 py-2 bg-gray-900 flex justify-between text-sm">
-                        <span className="font-mono">{file.filename}</span>
-                        <span>
-                            <span className="text-green-400">+{file.additions}</span>{" "}
-                            <span className="text-red-400">-{file.deletions}</span>{" "}
-                            <span className="text-gray-400">({file.status})</span>
-                        </span>
-                    </div>
-                    {file.patch ? (
-                        <pre className="text-xs p-4 overflow-x-auto whitespace-pre">{file.patch}</pre>
-                    ) : (
-                        <div className="text-xs p-4 text-gray-500">No patch available (binary or too large)</div>
-                    )}
-                </div>
+  const account = await prisma.account.findFirst({
+    where: { userId: session.user?.id, provider: "github" },
+  });
+  if (!account) redirect("/");
+
+  const octokit = new Octokit({ auth: account.access_token });
+
+  const [{ data: prData }, files] = await Promise.all([
+    octokit.rest.pulls.get({
+      owner,
+      repo,
+      pull_number: Number(pr),
+    }),
+    octokit.paginate(octokit.rest.pulls.listFiles, {
+      owner,
+      repo,
+      pull_number: Number(pr),
+      per_page: 100,
+    }),
+  ]);
+
+  const status: PrStatus = prData.draft
+    ? "draft"
+    : prData.merged_at
+      ? "merged"
+      : prData.state === "closed"
+        ? "closed"
+        : "open";
+
+  const totals = files.reduce(
+    (acc, f) => {
+      acc.add += f.additions;
+      acc.del += f.deletions;
+      return acc;
+    },
+    { add: 0, del: 0 }
+  );
+
+  return (
+    <div className="min-h-screen bg-[#0a0b0d] text-white">
+      <PrTopbar owner={owner} repo={repo} prNumber={pr} />
+
+      <Container className="px-6">
+        <PrHeader
+          title={prData.title}
+          number={prData.number}
+          status={status}
+          author={{
+            login: prData.user?.login ?? "unknown",
+            avatarUrl: prData.user?.avatar_url ?? null,
+          }}
+          base={prData.base.ref}
+          head={prData.head.ref}
+          commits={prData.commits}
+          openedAt={prData.created_at}
+        />
+
+        <PrTabs
+          active="files"
+          counts={{
+            conversation: prData.comments + prData.review_comments,
+            commits: prData.commits,
+            files: files.length,
+          }}
+        />
+
+        <div className="grid grid-cols-1 lg:grid-cols-[14rem_minmax(0,1fr)_18rem] gap-8 py-8">
+          <FileTree files={files} />
+
+          <div className="space-y-5 min-w-0">
+            {files.map((f) => (
+              <FileDiffCard
+                key={f.filename}
+                id={`f-${slug(f.filename)}`}
+                filename={f.filename}
+                status={f.status}
+                additions={f.additions}
+                deletions={f.deletions}
+                patch={f.patch}
+              />
             ))}
+          </div>
+
+          <PrSidebar
+            base={prData.base.ref}
+            head={prData.head.ref}
+            files={files.length}
+            additions={totals.add}
+            deletions={totals.del}
+          />
         </div>
-    )
+      </Container>
+    </div>
+  );
 }

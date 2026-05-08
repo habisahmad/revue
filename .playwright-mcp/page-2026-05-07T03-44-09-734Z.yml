@@ -1,0 +1,168 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - navigation [ref=e10]:
+        - generic [ref=e11]:
+          - link "Revue" [ref=e12] [cursor=pointer]:
+            - /url: /
+          - generic [ref=e13]:
+            - link "Home" [ref=e14] [cursor=pointer]:
+              - /url: /
+            - link "Docs" [ref=e15] [cursor=pointer]:
+              - /url: /docs
+            - link "Dashboard" [ref=e16] [cursor=pointer]:
+              - /url: /dashboard
+          - link "Get Started" [ref=e17] [cursor=pointer]:
+            - /url: /api/auth/signin
+      - generic [ref=e19]:
+        - generic [ref=e21]: Public beta · free for early adopters
+        - heading "Ship PRs that actually matter." [level=1] [ref=e23]
+        - paragraph [ref=e24]: Revue gives developers instant AI-powered feedback on every pull request — so you spend less time in review and more time building.
+        - link "Start reviewing" [ref=e25] [cursor=pointer]:
+          - /url: /api/auth/signin
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - generic [ref=e30]: "01"
+          - generic [ref=e32]: Live demo
+        - heading "What a review actually looks like." [level=2] [ref=e33]
+        - paragraph [ref=e34]: Revue reads your diff in seconds, then writes inline comments scoped to the change — typed, terse, and honest.
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - generic [ref=e37]:
+            - generic [ref=e42]: src/api/users.ts
+            - generic [ref=e43]: diff
+          - generic [ref=e44]:
+            - generic [ref=e45]:
+              - generic [ref=e46]: "9"
+              - generic [ref=e48]: "import { db } from \"@/lib/db\";"
+            - generic [ref=e50]: "10"
+            - generic [ref=e52]:
+              - generic [ref=e53]: "11"
+              - generic [ref=e54]: "@"
+              - generic [ref=e55]: "@@ -12,4 +12,5 @@ export async function getUser"
+            - generic [ref=e56]:
+              - generic [ref=e57]: "12"
+              - generic [ref=e58]: "-"
+              - generic [ref=e59]: "export async function getUser(id) {"
+            - generic [ref=e60]:
+              - generic [ref=e61]: "12"
+              - generic [ref=e62]: +
+              - generic [ref=e63]: "export async function getUser(id: string) {"
+            - generic [ref=e64]:
+              - generic [ref=e65]: "13"
+              - generic [ref=e66]: +
+              - generic [ref=e67]: if (!id) throw new Error("Missing user id");
+            - generic [ref=e68]:
+              - generic [ref=e69]: "14"
+              - generic [ref=e71]: "return db.users.findUnique({ where: { id } });"
+            - generic [ref=e72]:
+              - generic [ref=e73]: "15"
+              - generic [ref=e75]: "}"
+        - generic [ref=e76]:
+          - generic [ref=e79]:
+            - generic [ref=e80]:
+              - generic [ref=e81]: R
+              - generic [ref=e82]: Revue
+              - generic [ref=e83]: ·
+              - generic [ref=e84]: AI
+              - generic [ref=e85]: 12s ago
+            - paragraph [ref=e86]:
+              - text: Typing
+              - code [ref=e87]: id
+              - text: as
+              - code [ref=e88]: string
+              - text: and guarding the empty case removes the silent
+              - code [ref=e89]: undefined
+              - text: path. Consider also handling
+              - code [ref=e90]: findUnique
+              - text: returning
+              - code [ref=e91]: "null"
+              - text: at call sites — currently three of them assume a user.
+            - generic [ref=e92]:
+              - generic [ref=e93]: "#type-safety"
+              - generic [ref=e94] [cursor=pointer]:
+                - text: View on GitHub
+                - generic [ref=e95]: ↗
+          - generic [ref=e98]:
+            - generic [ref=e99]:
+              - generic [ref=e100]: R
+              - generic [ref=e101]: Revue
+              - generic [ref=e102]: ·
+              - generic [ref=e103]: AI
+              - generic [ref=e104]: 14s ago
+            - paragraph [ref=e105]:
+              - text: This function is hot — it's on the auth path. A short log on the not-found branch would have caught the
+              - code [ref=e106]: "#1247"
+              - text: regression two weeks faster.
+            - generic [ref=e107]:
+              - generic [ref=e108]: "#observability"
+              - generic [ref=e109] [cursor=pointer]:
+                - text: View on GitHub
+                - generic [ref=e110]: ↗
+      - generic [ref=e111]:
+        - generic [ref=e115]: Reviewing 47 PRs across 12 repos
+        - generic [ref=e116]: ·
+        - generic [ref=e117]: median 2.1s
+    - generic [ref=e119]:
+      - generic [ref=e120]:
+        - generic [ref=e121]:
+          - generic [ref=e122]: "02"
+          - generic [ref=e124]: Why it works
+        - heading "Built for the way you already ship." [level=2] [ref=e125]
+      - generic [ref=e126]:
+        - generic [ref=e127]:
+          - generic [ref=e128]:
+            - img [ref=e130]
+            - generic [ref=e132]: "01"
+          - heading "Reviews land in seconds" [level=3] [ref=e133]
+          - paragraph [ref=e134]: No queues, no batch jobs. Open a PR and the comments are waiting before you finish writing the description.
+        - generic [ref=e135]:
+          - generic [ref=e136]:
+            - img [ref=e138]
+            - generic [ref=e141]: "02"
+          - heading "Catches the boring bugs" [level=3] [ref=e142]
+          - paragraph [ref=e143]: Type holes, null paths, missing guards, leaky logs — the stuff humans skim past on the third reviewer of the day.
+        - generic [ref=e144]:
+          - generic [ref=e145]:
+            - img [ref=e147]
+            - generic [ref=e151]: "03"
+          - heading "Lives inside GitHub" [level=3] [ref=e152]
+          - paragraph [ref=e153]: Comments arrive inline on the diff. No new dashboards, no second source of truth. Resolve and merge as you always have.
+    - generic [ref=e156]:
+      - generic [ref=e157]:
+        - generic [ref=e158]: 2.1s
+        - generic [ref=e159]: Median review time
+      - generic [ref=e160]:
+        - generic [ref=e161]: 94%
+        - generic [ref=e162]: Comments left as-is
+      - generic [ref=e163]:
+        - generic [ref=e164]: "12"
+        - generic [ref=e165]: Languages supported
+      - generic [ref=e166]:
+        - generic [ref=e167]: "0"
+        - generic [ref=e168]: Dashboards to learn
+    - generic [ref=e171]:
+      - generic [ref=e172]:
+        - generic [ref=e173]: "03"
+        - generic [ref=e175]: Free while in beta
+      - heading "Stop reviewing. Start shipping." [level=2] [ref=e176]
+      - paragraph [ref=e177]: Connect a repo, open a PR, and Revue does the first pass. You handle the judgment calls.
+      - link "Connect your repository" [ref=e178] [cursor=pointer]:
+        - /url: /api/auth/signin
+    - generic [ref=e180]:
+      - generic [ref=e181]:
+        - generic [ref=e183]: Revue
+        - generic [ref=e184]: © 2026
+      - navigation [ref=e185]:
+        - link "Docs" [ref=e186] [cursor=pointer]:
+          - /url: /docs
+        - link "Dashboard" [ref=e187] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Changelog" [ref=e188] [cursor=pointer]:
+          - /url: /changelog
+        - link "Privacy" [ref=e189] [cursor=pointer]:
+          - /url: /privacy
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e195] [cursor=pointer]:
+    - img [ref=e196]
