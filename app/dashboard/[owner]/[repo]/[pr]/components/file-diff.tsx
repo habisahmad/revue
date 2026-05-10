@@ -89,9 +89,13 @@ export function FileDiffCard({
       {open && (
         <div className="overflow-x-auto">
           {hunks.length > 0 ? (
-            hunks.map((h, i) => <Hunk key={i} hunk={h} />)
+            <div className="min-w-max">
+              {hunks.map((h, i) => (
+                <Hunk key={i} hunk={h} />
+              ))}
+            </div>
           ) : (
-            <div className="px-4 py-8 text-center font-mono text-[12px] text-white/30">
+            <div className="px-4 py-10 text-center font-mono text-[13px] text-white/30">
               No patch available — binary file or too large
             </div>
           )}
@@ -103,12 +107,12 @@ export function FileDiffCard({
 
 function Hunk({ hunk }: { hunk: DiffHunk }) {
   return (
-    <div className="font-mono text-[12.5px] leading-[1.65]">
+    <div className="font-mono text-[13.5px] leading-[1.7]">
       {/* Hunk header */}
-      <div className="grid grid-cols-[3rem_3rem_1fr] bg-white/[0.018] border-y border-white/[0.04] py-1.5 text-white/35">
+      <div className="grid grid-cols-[3.5rem_3.5rem_1fr] bg-white/[0.025] border-y border-white/[0.04] py-2 text-white/40">
         <span className="text-right pr-2 select-none">·</span>
         <span className="text-right pr-2 select-none">·</span>
-        <span className="px-2">{hunk.header}</span>
+        <span className="px-3">{hunk.header}</span>
       </div>
 
       {hunk.lines.map((l, i) => (
@@ -140,19 +144,22 @@ function Line({ line }: { line: DiffLine }) {
   return (
     <div
       className={cn(
-        "grid grid-cols-[3rem_3rem_1.25rem_1fr] items-start",
+        "grid grid-cols-[3.5rem_3.5rem_1.5rem_1fr] items-start",
+        "hover:bg-white/[0.025] transition-colors",
         KIND_BG[line.kind],
         KIND_TEXT[line.kind]
       )}
     >
-      <span className="text-right pr-2 text-white/25 select-none tabular-nums">
+      <span className="text-right pr-2 py-0.5 text-white/30 select-none tabular-nums">
         {line.oldNum ?? ""}
       </span>
-      <span className="text-right pr-2 text-white/25 select-none tabular-nums">
+      <span className="text-right pr-2 py-0.5 text-white/30 select-none tabular-nums">
         {line.newNum ?? ""}
       </span>
-      <span className="text-white/35 select-none">{SIGIL[line.kind]}</span>
-      <span className="whitespace-pre pr-4">{line.content}</span>
+      <span className="py-0.5 text-white/40 select-none">
+        {SIGIL[line.kind]}
+      </span>
+      <span className="whitespace-pre pr-6 py-0.5">{line.content}</span>
     </div>
   );
 }

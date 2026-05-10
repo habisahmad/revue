@@ -1,7 +1,8 @@
 import * as React from "react";
 import Image from "next/image";
-import { GitBranch } from "lucide-react";
+import { GitBranch, Sparkles } from "lucide-react";
 import { StatusPill, type PrStatus } from "./status-pill";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type PrHeaderProps = {
@@ -29,10 +30,22 @@ export function PrHeader({
 }: PrHeaderProps) {
   return (
     <div className={cn("py-10", className)}>
-      <h1 className="font-mono text-3xl sm:text-4xl leading-[1.05] tracking-[-0.02em] text-white">
-        {title}{" "}
-        <span className="text-white/35 font-normal">#{number}</span>
-      </h1>
+      <div className="flex items-start justify-between gap-6">
+        <h1 className="font-mono text-3xl sm:text-4xl leading-[1.05] tracking-[-0.02em] text-white">
+          {title}{" "}
+          <span className="text-white/35 font-normal">#{number}</span>
+        </h1>
+
+        <Button
+          type="button"
+          variant="yellow"
+          size="md"
+          className="shrink-0"
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+          Analyze
+        </Button>
+      </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2.5 text-sm">
         <StatusPill status={status} />

@@ -11,7 +11,7 @@ type PrTopbarProps = {
 export function PrTopbar({ owner, repo, prNumber }: PrTopbarProps) {
   return (
     <header className="sticky top-0 z-30 border-b border-white/5 bg-[rgba(8,9,10,0.85)] backdrop-blur-xl">
-      <Container className="flex h-14 items-center justify-between px-6">
+      <Container className="flex h-14 items-center justify-between max-w-[96rem] px-6">
         <nav className="flex items-center gap-2 font-mono text-[12.5px] tracking-tight">
           <Link href="/" className="text-white/85 hover:text-white">
             <span className="accent-dot inline-block h-1.5 w-1.5 rounded-full align-middle mr-2" />

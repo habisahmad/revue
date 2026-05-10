@@ -10,6 +10,8 @@ const buttonVariants = cva(
         "liquid-glass": "liquid-glass text-white hover:scale-[1.03]",
         solid: "bg-white text-black hover:bg-white/90 hover:scale-[1.02]",
         ghost: "text-white/70 hover:text-white",
+        yellow:
+          "bg-yellow-400 text-neutral-950 ring-1 ring-yellow-300/60 shadow-[0_0_0_1px_rgba(250,204,21,0.25),0_8px_28px_-8px_rgba(250,204,21,0.45)] hover:bg-yellow-300 hover:scale-[1.03]",
       },
       size: {
         sm: "rounded-full px-4 py-2 text-xs",

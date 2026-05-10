@@ -7,7 +7,8 @@ import { Container } from "@/components/ui/container";
 import { PrTopbar } from "./components/pr-topbar";
 import { PrHeader } from "./components/pr-header";
 import { PrTabs } from "./components/pr-tabs";
-import { FileTree, slug } from "./components/file-tree";
+import { FileTree } from "./components/file-tree";
+import { slug } from "./lib/slug";
 import { FileDiffCard } from "./components/file-diff";
 import { PrSidebar } from "./components/pr-sidebar";
 import type { PrStatus } from "./components/status-pill";
@@ -66,7 +67,7 @@ export default async function Page({
     <div className="min-h-screen bg-[#0a0b0d] text-white">
       <PrTopbar owner={owner} repo={repo} prNumber={pr} />
 
-      <Container className="px-6">
+      <Container className="max-w-[96rem] px-6">
         <PrHeader
           title={prData.title}
           number={prData.number}
@@ -90,7 +91,7 @@ export default async function Page({
           }}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-[14rem_minmax(0,1fr)_18rem] gap-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[12rem_minmax(0,1fr)_16rem] gap-6 py-8">
           <FileTree files={files} />
 
           <div className="space-y-5 min-w-0">

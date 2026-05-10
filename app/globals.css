@@ -298,4 +298,8 @@ h1, h2, h3, h4, h5, h6 {
   body {
     @apply bg-background text-foreground;
   }
+  ::selection {
+    background: rgb(250 204 21 / 0.32);
+    color: white;
+  }
 }
