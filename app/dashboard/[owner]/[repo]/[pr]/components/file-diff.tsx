@@ -1,9 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { ChevronDown, ChevronRight, FileDiff } from "lucide-react";
+import { ChevronDown, ChevronRight, FileDiff, Sparkles } from "lucide-react";
 import { parsePatch, type DiffHunk, type DiffLine } from "../lib/parse-patch";
 import { cn } from "@/lib/utils";
+import type { ReviewComment } from "@/lib/claude";
 
 type FileDiffProps = {
   id: string;
@@ -12,6 +13,14 @@ type FileDiffProps = {
   additions: number;
   deletions: number;
   patch?: string;
+  comments?: ReviewComment[];
+};
+
+const SEVERITY_TONE: Record<ReviewComment["severity"], string> = {
+  nit: "text-white/65 ring-white/10 bg-white/[0.04]",
+  suggestion: "text-sky-200/95 ring-sky-400/25 bg-sky-400/[0.06]",
+  issue: "text-amber-200/95 ring-amber-400/30 bg-amber-400/[0.07]",
+  blocker: "text-rose-200/95 ring-rose-400/35 bg-rose-400/[0.08]",
 };
 
 const STATUS_TONE: Record<string, string> = {
@@ -29,12 +38,37 @@ export function FileDiffCard({
   additions,
   deletions,
   patch,
+  comments = [],
 }: FileDiffProps) {
   const [open, setOpen] = React.useState(true);
   const hunks = React.useMemo<DiffHunk[]>(
     () => (patch ? parsePatch(patch) : []),
     [patch]
   );
+
+  const commentsByLine = React.useMemo(() => {
+    const map = new Map<string, ReviewComment[]>();
+    for (const c of comments) {
+      const key = `${c.side}:${c.line}`;
+      const arr = map.get(key) ?? [];
+      arr.push(c);
+      map.set(key, arr);
+    }
+    return map;
+  }, [comments]);
+
+  // Comments whose line didn't land on a real diff line — render at the top of the body
+  const orphanComments = React.useMemo(() => {
+    if (comments.length === 0) return [];
+    const seenLines = new Set<string>();
+    for (const h of hunks) {
+      for (const l of h.lines) {
+        if (l.newNum != null) seenLines.add(`new:${l.newNum}`);
+        if (l.oldNum != null) seenLines.add(`old:${l.oldNum}`);
+      }
+    }
+    return comments.filter((c) => !seenLines.has(`${c.side}:${c.line}`));
+  }, [comments, hunks]);
 
   return (
     <article
@@ -78,6 +112,12 @@ export function FileDiffCard({
         >
           {status}
         </span>
+        {comments.length > 0 && (
+          <span className="font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-yellow-400/10 ring-1 ring-yellow-400/30 text-yellow-200/90 inline-flex items-center gap-1">
+            <Sparkles className="h-2.5 w-2.5" />
+            {comments.length}
+          </span>
+        )}
         <span className="ml-auto font-mono text-[11.5px] tabular-nums">
           <span className="text-emerald-300/90">+{additions}</span>
           <span className="text-white/15"> · </span>
@@ -88,10 +128,17 @@ export function FileDiffCard({
       {/* Body */}
       {open && (
         <div className="overflow-x-auto">
+          {orphanComments.length > 0 && (
+            <div className="border-b border-white/[0.04] bg-yellow-400/[0.025] px-4 py-3 space-y-2">
+              {orphanComments.map((c, i) => (
+                <InlineComment key={`orphan-${i}`} comment={c} />
+              ))}
+            </div>
+          )}
           {hunks.length > 0 ? (
             <div className="min-w-max">
               {hunks.map((h, i) => (
-                <Hunk key={i} hunk={h} />
+                <Hunk key={i} hunk={h} commentsByLine={commentsByLine} />
               ))}
             </div>
           ) : (
@@ -105,7 +152,13 @@ export function FileDiffCard({
   );
 }
 
-function Hunk({ hunk }: { hunk: DiffHunk }) {
+function Hunk({
+  hunk,
+  commentsByLine,
+}: {
+  hunk: DiffHunk;
+  commentsByLine: Map<string, ReviewComment[]>;
+}) {
   return (
     <div className="font-mono text-[13.5px] leading-[1.7]">
       {/* Hunk header */}
@@ -115,9 +168,48 @@ function Hunk({ hunk }: { hunk: DiffHunk }) {
         <span className="px-3">{hunk.header}</span>
       </div>
 
-      {hunk.lines.map((l, i) => (
-        <Line key={i} line={l} />
-      ))}
+      {hunk.lines.map((l, i) => {
+        const key =
+          l.kind === "del"
+            ? `old:${l.oldNum}`
+            : `new:${l.newNum}`;
+        const lineComments = commentsByLine.get(key);
+        return (
+          <React.Fragment key={i}>
+            <Line line={l} />
+            {lineComments && lineComments.length > 0 && (
+              <div className="px-4 py-2.5 bg-[#0d0f12] border-y border-white/[0.05] space-y-2">
+                {lineComments.map((c, j) => (
+                  <InlineComment key={j} comment={c} />
+                ))}
+              </div>
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
+function InlineComment({ comment }: { comment: ReviewComment }) {
+  return (
+    <div className="rounded-md ring-1 ring-white/8 bg-white/[0.02] px-3 py-2.5">
+      <div className="flex items-center gap-2 mb-1">
+        <span
+          className={cn(
+            "font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded ring-1",
+            SEVERITY_TONE[comment.severity],
+          )}
+        >
+          {comment.severity}
+        </span>
+        <span className="font-mono text-[11px] text-white/45">
+          line {comment.line}
+        </span>
+      </div>
+      <p className="font-sans text-[13px] leading-relaxed text-white/85 whitespace-pre-wrap">
+        {comment.body}
+      </p>
     </div>
   );
 }
